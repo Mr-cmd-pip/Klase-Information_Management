@@ -1,0 +1,299 @@
+{% extends 'index.html' %}
+{% block title %} {{ assignment.title }} - Klase {% endblock title %}
+{% block profile %}
+{% url 'profile' student.email %}
+{% endblock %}
+{% block user %}
+{{student.name}}
+{% endblock user %}
+{% block allCourses %}
+{% url 'courses' %}
+{% endblock %}
+{% block courses %}
+{% url 'myCourses' %}
+{% endblock courses %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    color: #37352f;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .breadcrumb {
+    padding: 0.5rem 0;
+    margin-bottom: 2rem;
+    list-style: none;
+    background-color: transparent;
+  }
+  
+  .breadcrumb-item {
+    display: inline;
+    font-size: 0.875rem;
+  }
+  
+  .breadcrumb-item a {
+    color: #0b6e99;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item.active {
+    color: #6b6b6b;
+  }
+  
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    padding: 0 0.5rem;
+    color: #6b6b6b;
+  }
+  
+  .assignment-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .assignment-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #37352f;
+  }
+  
+  .assignment-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+  
+  .assignment-meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .meta-label {
+    font-weight: 600;
+    color: #6b6b6b;
+  }
+  
+  .meta-value {
+    color: #37352f;
+  }
+  
+  .meta-value.deadline {
+    color: #e16259;
+  }
+  
+  .meta-value.submitted {
+    color: #0f9d58;
+  }
+  
+  .meta-value.pending {
+    color: #e16259;
+  }
+  
+  .file-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #37352f;
+    font-size: 0.875rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .file-link:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .file-link + .file-link {
+    margin-left: 0.5rem;
+  }
+  
+  .submission-form {
+    margin-top: 2rem;
+  }
+  
+  .form-control {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #37352f;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+  
+  .form-control:focus {
+    border-color: #0b6e99;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(11, 110, 153, 0.25);
+  }
+  
+  .btn-submit {
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #0b6e99;
+    border: 1px solid #0b6e99;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+  
+  .btn-submit:hover {
+    background-color: #095a7f;
+    border-color: #095a7f;
+  }
+  
+  .error-message {
+    color: #e16259;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'myCourses' %}">My Courses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'course' course.code %}">{{ course.title }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ assignment.title }}</li>
+    </ol>
+  </nav>
+
+  <div class="assignment-card">
+    <h1 class="assignment-title">{{ assignment.title }}</h1>
+    <div class="assignment-description">{% autoescape off %}{{ assignment.description }}{% endautoescape %}</div>
+    <div class="assignment-meta">
+      <span class="meta-label">Deadline:</span>
+      <span class="meta-value deadline">{{ assignment.post_date }}</span>
+      
+      <span class="meta-label">Total Marks:</span>
+      <span class="meta-value">{{ assignment.marks }}</span>
+      
+      {% if assignment.file %}
+      <span class="meta-label">Attachment:</span>
+      <span class="meta-value">
+        <a href="{{ assignment.file.url }}" class="file-link" target="_blank">View</a>
+        <a href="{{ assignment.file.url }}" class="file-link" download>Download</a>
+      </span>
+      {% endif %}
+      
+      <span class="meta-label">Status:</span>
+      {% if submission.status %}
+      <span class="meta-value submitted">{{ submission.status }} {{ submission.time_difference }} early!</span>
+      {% else %}
+      <span class="meta-value pending">Pending!</span>
+      {% endif %}
+      
+      <span class="meta-label">Grade:</span>
+      {% if submission.marks %}
+      <span class="meta-value">{{ submission.marks }} / {{ assignment.marks }}</span>
+      {% elif submission.marks == 0.00 %}
+      <span class="meta-value">0.00 / {{ assignment.marks }}</span>
+      {% else %}
+      <span class="meta-value">Not published</span>
+      {% endif %}
+      
+      {% if submission.file %}
+      <span class="meta-label">Your Submission:</span>
+      <span class="meta-value">
+        <a href="{{ submission.file.url }}" class="file-link" download>{{ submission.file_name }}</a>
+      </span>
+      {% endif %}
+      
+      <span class="meta-label">Time Remaining:</span>
+      <span class="meta-value" id="timeRemain"></span>
+    </div>
+
+    {% if time < assignment.deadline and not submission.file %}
+    <form action="{% url 'addSubmission' course.code assignment.id %}" method="POST" enctype="multipart/form-data" id="submissionForm" class="submission-form">
+      {% csrf_token %}
+      <div class="mb-3">
+        <input type="file" class="form-control" id="file" name="file" required>
+        <p id="fileError" class="error-message"></p>
+      </div>
+      <button type="submit" class="btn-submit">Submit Assignment</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Countdown timer
+    var deadline = new Date('{{ assignment.deadline|date:"D, d M Y H:i:s" }}').getTime();
+    
+    function updateCountdown() {
+      var now = new Date().getTime();
+      var timeLeft = deadline - now;
+      
+      if (timeLeft < 0) {
+        $('#timeRemain').text('Closed!').css('color', '#e16259');
+        $('#submissionForm').hide();
+      } else {
+        var days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        
+        $('#timeRemain').text(days + " days " + hours + " hours " + minutes + " minutes " + seconds + " seconds");
+      }
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // File size validation
+    $('#file').change(function() {
+      var fileSize = this.files[0].size;
+      if (fileSize > 10000000) {
+        $('#fileError').text('File size must be less than 10MB');
+        this.value = '';
+      } else {
+        $('#fileError').text('');
+      }
+    });
+    
+    // Animation
+    anime({
+      targets: '.assignment-card',
+      opacity: [0, 1],
+      translateY: [20, 0],
+      easing: 'easeOutQuad',
+      duration: 800
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block profile %}
+{% url 'profile' instructor.email %}
+{% endblock %}
+{% block user %}
+{{instructor.name}}
+{% endblock user %}
+{% block courses %}
+{% url 'instructorCourses' %}
+{% endblock courses %}
+{% block allCourses %}
+{% url 'courses' %}
+{% endblock %}
+{% block title %}Edit Course | Klase {% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Edit Course</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'instructorCourses' %}" class="btn btn-danger">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,309 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} {{ assignment.title }} - Klase {% endblock title %}
+{% block profile %}
+{% url 'profile' instructor.email %}
+{% endblock %}
+{% block user %}
+{{instructor.name}}
+{% endblock user %}
+{% block allCourses %}
+{% url 'courses' %}
+{% endblock %}
+{% block courses %}
+{% url 'instructorCourses' %}
+{% endblock courses %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    color: #37352f;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .breadcrumb {
+    padding: 0.5rem 0;
+    margin-bottom: 2rem;
+    list-style: none;
+    background-color: transparent;
+  }
+  
+  .breadcrumb-item {
+    display: inline;
+    font-size: 0.875rem;
+  }
+  
+  .breadcrumb-item a {
+    color: #0b6e99;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item.active {
+    color: #6b6b6b;
+  }
+  
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    padding: 0 0.5rem;
+    color: #6b6b6b;
+  }
+  
+  .assignment-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .assignment-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #37352f;
+  }
+  
+  .assignment-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+  
+  .assignment-meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .meta-label {
+    font-weight: 600;
+    color: #6b6b6b;
+  }
+  
+  .meta-value {
+    color: #37352f;
+  }
+  
+  .meta-value.deadline {
+    color: #e16259;
+  }
+  
+  .file-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #37352f;
+    font-size: 0.875rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .file-link:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .file-link + .file-link {
+    margin-left: 0.5rem;
+  }
+  
+  .submissions-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .submissions-table th,
+  .submissions-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .submissions-table th {
+    background-color: #f7f6f3;
+    font-weight: 600;
+    color: #37352f;
+  }
+  
+  .submissions-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .student-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .grade-form {
+    display: flex;
+    align-items: center;
+  }
+  
+  .grade-input {
+    width: 80px;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }
+  
+  .grade-submit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+  }
+  
+  .grade-submit img {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'instructorCourses' %}">My Courses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'instructor' course.code %}">{{ course.title }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ assignment.title }}</li>
+    </ol>
+  </nav>
+
+  <div class="assignment-card">
+    <h1 class="assignment-title">{{ assignment.title }}</h1>
+    <div class="assignment-description">{% autoescape off %}{{ assignment.description }}{% endautoescape %}</div>
+    <div class="assignment-meta">
+      <span class="meta-label">Deadline:</span>
+      <span class="meta-value deadline">{{ assignment.due_date }}</span>
+      
+      {% if assignment.file %}
+      <span class="meta-label">Attachment:</span>
+      <span class="meta-value">
+        <a href="{{ assignment.file.url }}" class="file-link" target="_blank">View</a>
+        <a href="{{ assignment.file.url }}" class="file-link" download>Download</a>
+      </span>
+      {% endif %}
+      
+      <span class="meta-label">Submitted:</span>
+      <span class="meta-value">{{ assignment.submission_set.count }} / {{ totalStudents }}</span>
+      
+      <span class="meta-label">Time Remaining:</span>
+      <span class="meta-value" id="timeRemain"></span>
+    </div>
+  </div>
+
+  <h2 class="text-muted fw-bold fst-italic mt-3 mb-4">Submissions</h2>
+
+  <div class="table-responsive">
+    <table class="submissions-table">
+      <thead>
+        <tr>
+          <th colspan="2">Student</th>
+          <th>Student ID</th>
+          <th>Submitted file</th>
+          <th>Submitted on</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if not submissions %}
+          <tr>
+            <td colspan="6" class="text-center text-muted fst-italic">No submissions yet</td>
+          </tr>
+        {% else %}
+          {% for submission in submissions %}
+            <tr>
+              <td>
+                <img class="student-avatar" src="/media/{{ submission.student.photo }}" alt="{{ submission.student.name }}">
+              </td>
+              <td>{{ submission.student.name }}</td>
+              <td>{{ submission.student_id }}</td>
+              <td>
+                <a href="{{ submission.file.url }}" class="file-link" download>Download</a>
+              </td>
+              <td>{{ submission.submission_date }}</td>
+              <td>
+                <form class="grade-form" action="{% url 'gradeSubmission' course.code assignment.id submission.id %}" method="post">
+                  {% csrf_token %}
+                  <input class="grade-input" type="number" name="marks" id="marks" max="{{ assignment.marks }}" step="0.1" min="0" value="{{ submission.marks|default_if_none:'' }}" required>
+                  <button type="submit" class="grade-submit">
+                    <img src="{% static 'images/check-circle-svgrepo-com.svg' %}" alt="Submit grade">
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Countdown timer
+    var deadline = new Date('{{ assignment.deadline|date:"D, d M Y H:i:s" }}').getTime();
+    
+    function updateCountdown() {
+      var now = new Date().getTime();
+      var timeLeft = deadline - now;
+      
+      if (timeLeft < 0) {
+        $('#timeRemain').text('Closed!').css('color', '#e16259');
+      } else {
+        var days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        
+        $('#timeRemain').text(days + " days " + hours + " hours " + minutes + " minutes " + seconds + " seconds");
+      }
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // Animation
+    anime({
+      targets: '.assignment-card, .submissions-table',
+      opacity: [0, 1],
+      translateY: [20, 0],
+      easing: 'easeOutQuad',
+      duration: 800,
+      delay: anime.stagger(200)
+    });
+    
+    // Grade input validation
+    $('.grade-input').on('input', function() {
+      var max = parseFloat($(this).attr('max'));
+      var value = parseFloat($(this).val());
+      if (value > max) {
+        $(this).val(max);
+      }
+    });
+  });
+</script>
+{% endblock %}

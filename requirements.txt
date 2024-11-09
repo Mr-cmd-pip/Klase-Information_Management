@@ -1,0 +1,10 @@
+asgiref
+autopep8
+Django
+django-cleanup
+django-froala-editor
+Pillow
+pycodestyle
+sqlparse
+toml
+tzdata

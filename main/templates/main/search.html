@@ -1,0 +1,191 @@
+{% extends 'index.html' %}
+{% block title %}{{ q }} - Klase{% endblock title %}
+{% block profile %}
+{% if instructor %} {% url 'profile' instructor.email %}
+{% else %}
+{% url 'profile' student.email %}
+{% endif %}
+{% endblock %}
+{% block user %}
+{% if instructor %} {{instructor.name}}
+{% else %} {{student.name}}
+{% endif %}
+{% endblock user %}
+{% block courses %}
+{% if instructor %} {% url 'instructorCourses' %}
+{% else %}
+{% url 'myCourses' %}
+{% endif %}
+{% endblock courses %}
+{% block allCourses %} {% url 'courses' %} {% endblock %}
+
+{% block extra_css %}
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+  }
+  
+  .course-card {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .course-header {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .course-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .course-code {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+  
+  .course-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  
+  .course-instructor {
+    font-size: 0.95rem;
+    color: #495057;
+    margin-bottom: 1rem;
+  }
+  
+  .btn-custom {
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: auto;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-custom-primary {
+    background-color: #343a40;
+    border-color: #343a40;
+    color: #fff;
+  }
+  
+  .btn-custom-primary:hover {
+    background-color: #23272b;
+    border-color: #23272b;
+    transform: translateY(-2px);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+  <div class="fs-5 text-muted py-2">
+    Showing search results for <span class="text-primary">'{{ q }}'</span>
+  </div>
+
+  {% if courses %}
+    <div class="row g-4">
+      {% for course in courses %}
+        <div class="col-sm-6 col-lg-4 animate__animated animate__zoomIn" style="animation-delay: {{ forloop.counter0|divisibleby:3 }}00ms;">
+          <div class="course-card">
+            <div class="course-header">
+              <h3 class="course-title mb-0">{{ course.title }}-{{ course.code }}</h3>
+            </div>
+            <div class="course-body">
+              <h5 class="course-code mb-3">{{course.description}}</h5>
+              <p class="course-instructor">
+                <strong>Instructor:</strong>
+                {% if course.Instructor %}
+                  {{ course.Instructor.name }}
+                {% else %}
+                  Not assigned
+                {% endif %}
+              </p>
+              {% if not instructor %}
+                {% if course not in enrolled %}
+                  <a href="{% url 'access' course.code %}" class="btn btn-custom btn-custom-primary">Access</a>
+                {% else %}
+                  <a href="{% url 'course' course.code %}" class="btn btn-custom btn-custom-primary">Enter</a>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center" role="alert">
+      <p class="h4 mb-0">No results found for '{{ q }}'</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    anime.timeline({
+      easing: 'easeOutExpo',
+    })
+    .add({
+      targets: '.course-card',
+      scale: [0.9, 1],
+      opacity: [0, 1],
+      duration: 1200,
+      delay: anime.stagger(100, {start: 300}),
+    })
+    .add({
+      targets: '.btn-custom',
+      opacity: [0, 1],
+      translateY: [20, 0],
+      duration: 800,
+      delay: anime.stagger(50),
+    }, '-=800');
+
+    // Hover effect for course cards
+    const courseCards = document.querySelectorAll('.course-card');
+    courseCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        anime({
+          targets: card,
+          scale: 1.05,
+          duration: 300,
+          easing: 'easeOutQuad'
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        anime({
+          targets: card,
+          scale: 1,
+          duration: 300,
+          easing: 'easeOutQuad'
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}

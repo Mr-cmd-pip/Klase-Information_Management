@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klase - Your Gateway to Learning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .course-card {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            transform-origin: center;
+            transition: all 0.3s ease;
+        }
+
+        .landing-container {
+            min-height: calc(100vh - 200px);
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .close-btn {
+            margin-left: 10px;
+            opacity: 0.5;
+            font-size: 18px;
+        }
+
+        #computer-studies { top: 20%; left: 15%; transform: rotate(-15deg); }
+        #accountancy { top: 25%; left: 40%; }
+        #criminal-justice { top: 20%; right: 15%; transform: rotate(15deg); }
+        #architecture { bottom: 30%; left: 20%; transform: rotate(-10deg); }
+        #engineering { bottom: 35%; left: 45%; }
+        #nursing { bottom: 30%; right: 20%; transform: rotate(10deg); }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px) rotate(var(--rotation, 0deg)); }
+            50% { transform: translateY(-10px) rotate(var(--rotation, 0deg)); }
+            100% { transform: translateY(0px) rotate(var(--rotation, 0deg)); }
+        }
+    </style>
+</head>
+<body class="bg-white overflow-hidden">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3" style="position: absolute; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; z-index: 1000;">
+        <a class="navbar-brand fw-bold fs-3" href="{% url 'landing' %}">Klase</a>
+        <div>
+            <a href="{% url 'std_login' %}" class="btn btn-outline-dark me-2">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-dark">Sign Up</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container landing-container position-relative">
+        <div class="container min-vh-100 position-relative d-flex justify-content-center align-items-center">
+            <div class="text-center pb-5 mb-5">
+                <h1 class="display-2 fw-bold mb-3">Welcome to Klase</h1>
+                <p class="lead text-muted">Your Gateway to Learning</p>
+            </div>
+        </div>
+
+        <!-- Floating Course Cards -->
+        <div class="course-card floating" id="computer-studies" style="--rotation: -15deg;">
+            <svg class="course-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 5h18v14H3z"/>
+                <path d="M7 15h10"/>
+            </svg>
+            Computer Studies
+            <span class="close-btn">×</span>
+        </div>
+
+        <div class="course-card floating" id="accountancy">
+            <svg class="course-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                <path d="M8 8h8M8 12h8M8 16h8"/>
+            </svg>
+            Accountancy
+            <span class="close-btn">×</span>
+        </div>
+
+        <div class="course-card floating" id="criminal-justice" style="--rotation: 15deg;">
+            <svg class="course-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            Criminal Justice
+            <span class="close-btn">×</span>
+        </div>
+
+        <div class="course-card floating" id="architecture" style="--rotation: -10deg;">
+            <svg class="course-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 20h20M4 4h16v16H4z"/>
+                <path d="M12 4v16"/>
+            </svg>
+            Architecture
+            <span class="close-btn">×</span>
+        </div>
+
+        <div class="course-card floating" id="engineering">
+            <svg class="course-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2v20M2 12h20"/>
+            </svg>
+            Engineering
+            <span class="close-btn">×</span>
+        </div>
+
+        <div class="course-card floating" id="nursing" style="--rotation: 10deg;">
+            <svg class="course-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v20M2 12h20"/>
+            </svg>
+            Nursing
+            <span class="close-btn">×</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

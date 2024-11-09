@@ -1,0 +1,225 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %}Assignments | {{  course.title}} | Klase {% endblock title %}
+{% block profile %}
+{% url 'profile' student.email %}
+{% endblock %}
+{% block user %}
+{{student.name}}
+{% endblock user %}
+{% block courses %}
+{% url 'myCourses' %}
+{% endblock courses %}
+{% block allCourses %}
+{% url 'courses' %}
+{% endblock allCourses %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    color: #37352f;
+  }
+  
+  
+  .breadcrumb {
+    padding: 0.5rem 0;
+    margin-bottom: 2rem;
+    list-style: none;
+    background-color: transparent;
+  }
+  
+  .breadcrumb-item {
+    display: inline;
+    font-size: 0.875rem;
+  }
+  
+  .breadcrumb-item a {
+    color: #0b6e99;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item.active {
+    color: #6b6b6b;
+  }
+  
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    padding: 0 0.5rem;
+    color: #6b6b6b;
+  }
+  
+  .course-header {
+    background-color: #f7f6f3;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .course-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #37352f;
+    margin: 0;
+  }
+  
+  .assignments-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+  
+  .assignments-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .assignments-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #37352f;
+    margin: 0;
+  }
+  
+  .assignments-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  
+  .assignment-list {
+    margin-top: 1rem;
+  }
+  
+  .assignment-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .assignment-item:last-child {
+    border-bottom: none;
+  }
+  
+  .assignment-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #0b6e99;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+  
+  .assignment-title:hover {
+    text-decoration: underline;
+  }
+  
+  .assignment-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: #6b6b6b;
+  }
+  
+  .assignments-footer {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: #6b6b6b;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'myCourses' %}">My Courses</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'course' course.code %}">{{ course.title }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Assignments</li>
+    </ol>
+  </nav>
+
+  <div class="course-header">
+    <h1 class="course-title">{{ course.title }} - {{ course.code }}</h1>
+  </div>
+
+  <div class="assignments-card">
+    <div class="assignments-header">
+      <img src="{% static 'images/icon/open-book.png' %}" alt="" class="assignments-icon">
+      <h2 class="assignments-title">Assignments</h2>
+    </div>
+
+    <div class="assignment-list">
+      {% for assignment in assignments %}
+        <div class="assignment-item">
+          <a href="{% url 'assignmentPage' course.code assignment.id %}" class="assignment-title">
+            {{ assignment.title }}
+          </a>
+          <div class="assignment-meta">
+            <span>Posted: {{ assignment.post_date }}</span>
+            <span>Due: {{ assignment.due_date }}</span>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-center">No assignments given yet</p>
+      {% endfor %}
+    </div>
+
+    <div class="assignments-footer">
+      <p>Showing {{ assignments.count }} of {{ course.assignment_set.count }} 
+        {% if assignments.count == 1 %}assignment{% else %}assignments{% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Fade in assignment items
+    anime.timeline({
+      easing: 'easeOutExpo',
+    })
+    .add({
+      targets: '.assignments-card',
+      opacity: [0, 1],
+      translateY: [20, 0],
+      duration: 800,
+    })
+    .add({
+      targets: '.assignment-item',
+      opacity: [0, 1],
+      translateY: [20, 0],
+      delay: anime.stagger(100),
+      duration: 600,
+    }, '-=400');
+
+    // Hover effect for assignment titles
+    $('.assignment-title').hover(
+      function() {
+        anime({
+          targets: this,
+          scale: 1.05,
+          duration: 300,
+          easing: 'easeOutQuad'
+        });
+      },
+      function() {
+        anime({
+          targets: this,
+          scale: 1,
+          duration: 300,
+          easing: 'easeOutQuad'
+        });
+      }
+    );
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,272 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} {{ course.title }} | Klase {% endblock title %}
+{% block profile %}
+{% url 'profile' student.email %}
+{% endblock %}
+{% block user %}
+{{student.name}}
+{% endblock user %}
+{% block courses %}
+{% url 'myCourses' %}
+{% endblock courses %}
+{% block allCourses %}
+{% url 'courses' %}
+{% endblock allCourses %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    color: #37352f;
+  }
+  
+  .page-header {
+    padding: 20px 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .course-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  
+  .breadcrumb {
+    background-color: transparent;
+    padding: 0;
+  }
+  
+  .breadcrumb-item a {
+    color: #37352f;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item.active {
+    color: #6b6b6b;
+  }
+  
+  .section-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .section-card:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  }
+  
+  .section-header {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+  }
+  
+  .section-icon {
+    margin-right: 10px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .section-content {
+    padding: 15px;
+  }
+  
+  .dropdown-toggle::after {
+    display: none;
+  }
+  
+  .dropdown-menu {
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .dropdown-item {
+    padding: 8px 15px;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f7f6f3;
+  }
+  
+  .announcement-item, .assignment-item, .material-item {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .announcement-item:last-child, .assignment-item:last-child, .material-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  
+  .item-date {
+    font-size: 0.85rem;
+    color: #6b6b6b;
+  }
+  
+  .btn-link {
+    color: #0b6e99;
+    text-decoration: none;
+    padding: 0;
+  }
+  
+  .btn-link:hover {
+    text-decoration: underline;
+  }
+  .inline-content {
+    display: flex;
+    align-items: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <h1 class="course-title">{{ course.title }} ({{ course.code }})</h1>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'myCourses' %}">My Courses</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-8">
+      <!-- Announcements Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <img src="{% static 'images/icon/megaphone.png' %}" alt="" class="section-icon">
+          Announcements
+        </div>
+        <div class="section-content">
+          {% for announcement in announcements %}
+            <div class="announcement-item">
+              <div>{{ course.Instructor.name }}: {% autoescape off %}{{ announcement.description }}{% endautoescape %}</div>
+              <div class="item-date text-end">{{ announcement.post_date }}</div>
+            </div>
+          {% empty %}
+            <p class="text-muted">No announcements have been posted.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Assignments Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <img src="{% static 'images/icon/open-book.png' %}" alt="" class="section-icon">
+          Assignments
+        </div>
+        <div class="section-content">
+          {% for assignment in assignments %}
+            <div class="assignment-item">
+              <h5><a href="{% url 'assignmentPage' course.code assignment.id %}" class="btn-link">{{ assignment.title }}</a></h5>
+              <div class="d-flex justify-content-between">
+                <span>Due: {{ assignment.due_date }}</span>
+                <span class="item-date">Posted: {{ assignment.post_date }}</span>
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-muted">No assignments have been given yet.</p>
+          {% endfor %}
+          {% if assignments %}
+            <div class="text-center mt-3">
+              <p class="text-muted">Showing {{ assignments.count }} of {{ course.assignment_set.count }} assignments</p>
+              <a href="{% url 'student-assignments' course.code %}" class="btn-link">Show all assignments</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Course Materials Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <img src="{% static 'images/icon/folder.png' %}" alt="" class="section-icon">
+          Course Materials
+        </div>
+        <div class="section-content">
+          {% for material in materials %}
+            <div class="material-item">
+              <div>{% autoescape off %}{{ material.description }}{% endautoescape %}</div>
+              {% if material.file %}
+                <a href="{{ material.file.url }}" class="btn-link">{{ material.file.name|cut:"materials/" }}</a>
+              {% endif %}
+              <div class="item-date text-end">{{ material.post_date }}</div>
+            </div>
+          {% empty %}
+            <p class="text-muted">No course materials are available.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <!-- Course Actions -->
+      <div class="section-card">
+        <div class="section-header">
+          Course Actions
+        </div>
+        <div class="section-content">
+          <a href="{% url 'discussion' course.code %}" class="btn btn-outline-primary w-100 mb-2">
+            <i class="bi bi-chat-right-dots"></i> Discussion
+          </a>
+          <a href="{% url 'withdraw_course' course.code %}" class="btn btn-outline-danger w-100">
+            <i class="bi bi-x-circle"></i> Withdraw from Course
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Fade in section cards
+    $('.section-card').each(function(index) {
+      $(this).delay(100 * index).animate({opacity: 1}, 500);
+    });
+
+    // Smooth scroll for breadcrumb links
+    $('.breadcrumb-item a').click(function(e) {
+      e.preventDefault();
+      var target = $(this).attr('href');
+      $('html, body').animate({
+        scrollTop: $(target).offset().top
+      }, 500);
+    });
+
+    // Toggle announcement descriptions
+    $('.announcement-item').each(function() {
+      var $description = $(this).find('div:first');
+      var fullText = $description.html();
+      var shortText = fullText.slice(0, 200) + '...';
+      
+      if (fullText.length > 200) {
+        $description.html(shortText);
+        $description.append('<a href="#" class="read-more">Read more</a>');
+        
+        $(this).on('click', '.read-more', function(e) {
+          e.preventDefault();
+          if ($description.html().indexOf('Read more') !== -1) {
+            $description.html(fullText + ' <a href="#" class="read-more">Read less</a>');
+          } else {
+            $description.html(shortText + ' <a href="#" class="read-more">Read more</a>');
+          }
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}
